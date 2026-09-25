@@ -10,11 +10,12 @@ const (
 	USER_IS_EMAIL_REGISTERED uint = 0 // If the first bit is set, the welcome email has been sent successfully.
 	USER_IS_ACTIVE           uint = 1 // If the second bit is set, the account is activated and can be used (user has verified email).
 	USER_IS_BLOCKED          uint = 2 // If the third bit is set, the account has been disabled.
-	USER_IS_BANNED           uint = 3 // If the fourth bit is set, the account has been banned.
-	USER_IS_EMAIL_DISABLED   uint = 4 // If the fifth bit is set, this will disable sending emails to the user (i.e. email needs to be changed manually, wrong email, etc).
-	_                        uint = 5 // _ bit values are reserved for future use.
-	_                        uint = 6
-	USER_IS_ADMIN            uint = 7 // If the last bit is set, the user is a server admin.
+	USER_IS_WARNED           uint = 3 // If the fourth bit is set, the user has been warned.
+	USER_IS_BANNED           uint = 4 // If the fifth bit is set, the account has been banned.
+	USER_IS_EMAIL_DISABLED   uint = 5 // If the sixth bit is set, this will disable sending emails to the user (i.e. email needs to be changed manually, wrong email, etc).
+	USER_IS_OAUTH_ONLY       uint = 6 // If the seventh bit is set, the user can only log in using OAuth (passwordless login).
+	USER_IS_TOTP_ENABLED     uint = 7 // If the eighth bit is set, the user has enabled TOTP on their account.
+	USER_IS_ADMIN            uint = 8 // If the ninth bit is set, the user is a server admin.
 )
 
 // Session flags

@@ -24,10 +24,10 @@ func SpawnRelay(c *structs.Client, state *structs.Server, lobby_name string) (*s
 	config.Debug = 2
 	config.Configuration.ICEServers = []webrtc.ICEServer{
 		{
-			URLs: []string{"stun:vpn.mikedev101.cc:3478", "stun:vpn.mikedev101.cc:5349"},
+			URLs: []string{"stun:vpn.cloudlink-omega-next:3478", "stun:vpn.cloudlink-omega-next:5349"},
 		},
 		{
-			URLs:       []string{"turn:vpn.mikedev101.cc:5349", "turn:vpn.mikedev101.cc:3478"},
+			URLs:       []string{"turn:vpn.cloudlink-omega-next:5349", "turn:vpn.cloudlink-omega-next:3478"},
 			Username:   "free",
 			Credential: "free",
 		},
