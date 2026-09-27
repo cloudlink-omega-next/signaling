@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
@@ -14,6 +16,57 @@ import (
 	"github.com/pion/webrtc/v3"
 )
 
+func getICEServers() []webrtc.ICEServer {
+	stunEnv := strings.TrimSpace(os.Getenv("STUN_SERVER_URLS"))
+	turnEnv := strings.TrimSpace(os.Getenv("TURN_SERVER_URLS"))
+	turnUser := strings.TrimSpace(os.Getenv("TURN_USERNAME"))
+	turnPass := strings.TrimSpace(os.Getenv("TURN_PASSWORD"))
+
+	var stunURLs []string
+	if stunEnv != "" {
+		for _, u := range strings.Split(stunEnv, ",") {
+			u = strings.TrimSpace(u)
+			if u != "" {
+				stunURLs = append(stunURLs, u)
+			}
+		}
+	}
+	if len(stunURLs) == 0 {
+		stunURLs = []string{"stun:vpn.cloudlink-omega-next:3478", "stun:vpn.cloudlink-omega-next:5349"}
+	}
+
+	iceServers := []webrtc.ICEServer{
+		{
+			URLs: stunURLs,
+		},
+	}
+
+	if turnEnv != "" {
+		var turnURLs []string
+		for _, u := range strings.Split(turnEnv, ",") {
+			u = strings.TrimSpace(u)
+			if u != "" {
+				turnURLs = append(turnURLs, u)
+			}
+		}
+		if len(turnURLs) > 0 {
+			iceServers = append(iceServers, webrtc.ICEServer{
+				URLs:       turnURLs,
+				Username:   turnUser,
+				Credential: turnPass,
+			})
+		}
+	} else {
+		iceServers = append(iceServers, webrtc.ICEServer{
+			URLs:       []string{"turn:vpn.cloudlink-omega-next:5349", "turn:vpn.cloudlink-omega-next:3478"},
+			Username:   "free",
+			Credential: "free",
+		})
+	}
+
+	return iceServers
+}
+
 func SpawnRelay(c *structs.Client, state *structs.Server, lobby_name string) (*structs.Relay, error) {
 	if state.Relays[c.GameID] != nil {
 		return state.Relays[c.GameID][lobby_name], nil
@@ -22,16 +75,7 @@ func SpawnRelay(c *structs.Client, state *structs.Server, lobby_name string) (*s
 	config := peer.NewOptions()
 	config.PingInterval = 500
 	config.Debug = 2
-	config.Configuration.ICEServers = []webrtc.ICEServer{
-		{
-			URLs: []string{"stun:vpn.cloudlink-omega-next:3478", "stun:vpn.cloudlink-omega-next:5349"},
-		},
-		{
-			URLs:       []string{"turn:vpn.cloudlink-omega-next:5349", "turn:vpn.cloudlink-omega-next:3478"},
-			Username:   "free",
-			Credential: "free",
-		},
-	}
+	config.Configuration.ICEServers = getICEServers()
 
 	relayid := ulid.MustNew(ulid.Timestamp(time.Now()), rand.Reader).String()
 	relayPeer, err := peer.NewPeer(relayid, config)
